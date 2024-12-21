@@ -5,9 +5,9 @@ a constructor for initialization a game piece
 input: name, color, row, col
 output: none
 */
-GamePiece::GamePiece(const char name, const char color, const int row, const int col) : _name(name),
-_color(color), _pos{ row, col }
-{}
+GamePiece::GamePiece(const char name, const char color, const int row, const int col) : _name(name), _color(color), _pos{ row, col }
+{
+}
 
 /*
 a destructor for game piece
@@ -45,5 +45,6 @@ int GamePiece::getPieceCol() const
 {
 	return this->_pos[COL_INDEX];
 }
+
 
 
