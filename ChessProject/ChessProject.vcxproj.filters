@@ -27,7 +27,7 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="board.h">
+    <ClInclude Include="Board.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Rook.h">
@@ -36,12 +36,48 @@
     <ClInclude Include="ChessEnums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="King.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Bishop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pawn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Queen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Knight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GamePiece.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Board.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="King.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Bishop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pawn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Queen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Knight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

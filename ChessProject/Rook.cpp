@@ -8,7 +8,8 @@ Rook::~Rook()
 {
 }
 
-bool Rook::canMove()
+bool Rook::canMove(int newRow, int newCul) const
 {
-	
+	return false;
 }
+

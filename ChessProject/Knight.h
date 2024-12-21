@@ -1,15 +1,13 @@
 #pragma once
 #include "GamePiece.h"
-class Knight : GamePiece 
+class Knight : public GamePiece 
 {
 public:
-	Knight  ();
-	~Knight  ();
-
+	Knight(const char name, const char color, const int row, const int col);
+	~Knight();
+	virtual bool canMove(int newRow, int newCol) const override;
 private:
-	char _name;
-	int pos[SIZE_POS];
-	char color;
+
 protected:
 	void move();
 	void eat();
