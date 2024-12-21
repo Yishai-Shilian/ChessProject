@@ -35,3 +35,15 @@ char GamePiece::getColor() const
 {
 	return this->_color;
 }
+
+int GamePiece::getPieceRow() const
+{
+	return this->_pos[ROW_INDEX];
+}
+
+int GamePiece::getPieceCol() const
+{
+	return this->_pos[COL_INDEX];
+}
+
+

@@ -8,11 +8,11 @@ class GamePiece
 public:
 	GamePiece(const char name, const char color, const int row, const int col);
 	virtual ~GamePiece();
-	virtual void eat() = 0; //maybey
-	virtual void move() = 0; //maybey
+	virtual bool canMove() = 0;
 	char getName() const;
 	char getColor() const;
-	//maybey return to pos (getter to pos)
+	int getPieceRow() const;
+	int getPieceCol() const;
 
 private:
 	char _name;
