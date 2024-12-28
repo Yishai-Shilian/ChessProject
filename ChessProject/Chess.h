@@ -22,7 +22,7 @@ public:
 	bool checkCode7(const int* dstPos,const int* srcPos);//same pos
 	int CheckCode(GamePiece* board[BOARD_SIZE][BOARD_SIZE], const int* srcPos, const int* dstPos);
 	ChessColors getOpponentColor();
-	bool madeChess(ChessColors currPlayer);
+	bool madeChess(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiece* board[BOARD_SIZE][BOARD_SIZE]);
 	void getPosKing(ChessColors kingColor, int* pos);
 private:
 	ChessColors _currPlayer;

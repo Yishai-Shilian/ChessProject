@@ -124,6 +124,29 @@ void Board::movePiece(const int sourceRow, const int sourceCol, const int destRo
     this->_board[destRow][destCol] = temp;
 }
 
+void Board::copyBoard(GamePiece* boardCopiedFrom[BOARD_SIZE][BOARD_SIZE], GamePiece* copiedBoard[BOARD_SIZE][BOARD_SIZE])
+{
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        for (int j = 0; j < BOARD_SIZE; j++)
+        {
+            if (boardCopiedFrom[i][j] != nullptr)
+            {
+
+                copiedBoard[i][j]->_color = boardCopiedFrom[i][j]->_color;
+                copiedBoard[i][j]->_name = boardCopiedFrom[i][j]->_name;
+                copiedBoard[i][j]->_pos[ROW_INDEX] = boardCopiedFrom[i][j]->_pos[ROW_INDEX];
+                copiedBoard[i][j]->_pos[COL_INDEX] = boardCopiedFrom[i][j]->_pos[COL_INDEX];
+            }
+            else
+            {
+                copiedBoard[i][j] = nullptr;
+            }
+            
+        }
+    }
+}
+
 GamePiece* Board::getGamePiece(const int row, const int col) const
 {
     return this->_board[row][col];

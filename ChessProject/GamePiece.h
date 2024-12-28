@@ -17,9 +17,8 @@ public:
 	void setPieceCol(const int newCol);
 	bool IsPathClear(const int newRow, const int newCol, GamePiece* board[BOARD_SIZE][BOARD_SIZE]);
 
-private:
+public:
 	char _name;
 	char _color;
-protected:
 	int _pos[SIZE_POS];
 };

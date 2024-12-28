@@ -21,6 +21,7 @@ public:
 	void printBoard() const;
 	void eat(const int row, const int col);
 	void movePiece(const int sourceRow, const int sourceCol, const int destRow, const int destCol);
+	static void copyBoard(GamePiece* boardCopiedFrom[BOARD_SIZE][BOARD_SIZE], GamePiece* copiedBoard[BOARD_SIZE][BOARD_SIZE]);
 	GamePiece* getGamePiece(const int row, const int col) const;
 	GamePiece* _board[BOARD_SIZE][BOARD_SIZE];
 private:

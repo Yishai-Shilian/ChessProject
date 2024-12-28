@@ -159,16 +159,16 @@ ChessColors Chess::getOpponentColor()
 	return ChessColors::black;
 }
 
-//bool Chess::madeChess(ChessColors currPlayer)
-//{
-//	bool isChess = false;
-//	GamePiece* copiedBoard[BOARD_SIZE][BOARD_SIZE];
-//	for (int i = 0; i < BOARD_SIZE; i++)
-//	{
-//
-//	}
-//
-//}
+bool Chess::madeChess(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiece* board[BOARD_SIZE][BOARD_SIZE])
+{
+	bool isChess = false;
+	int kingPos[SIZE_POS];
+	GamePiece* copiedBoard[BOARD_SIZE][BOARD_SIZE];
+	Board::copyBoard(board, copiedBoard);
+	getPosKing(currPlayer, kingPos);
+
+
+}
 
 void Chess::getPosKing(ChessColors kingColor, int* pos)
 {
