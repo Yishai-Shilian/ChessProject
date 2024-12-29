@@ -42,7 +42,7 @@ void Chess::play()
 		Board::getPosFromString(msgFromGraphics.substr(0, SIZE_POS), sourcePose);
 		int destPose[2];
 		Board::getPosFromString(msgFromGraphics.substr(SIZE_POS, SIZE_POS + SIZE_POS), destPose);
-		int frontendCode = this->CheckCode(this->_board._board, sourcePose, destPose);
+		int frontendCode = this->CheckCode(this->_currPlayer,this->_board._board, sourcePose, destPose);
 		msgToGraphics[0] = (char)(frontendCode + '0');
 		msgToGraphics[1] = 0;
 		this->_pipe.sendMessageToGraphics(msgToGraphics);
@@ -68,7 +68,13 @@ void Chess::switchTurns()
 		this->_currPlayer = ChessColors::black;
 	}
 }
-
+bool Chess::checkCode1(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiece* board[BOARD_SIZE][BOARD_SIZE])
+{
+	if (madeChess(getOpponentColor(), srcPos, dstPos, board))
+	{
+		return FrontendCodes::validMoveCausesChessRival;
+	}
+}
 bool Chess::checkCode2(GamePiece* board[BOARD_SIZE][BOARD_SIZE],const int* srcPos)
 {
 	if (board[srcPos[ROW_INDEX]][srcPos[COL_INDEX]] == nullptr || board[srcPos[ROW_INDEX]][srcPos[COL_INDEX]]->getColor() != this->_currPlayer)
@@ -86,6 +92,11 @@ bool Chess::checkCode3(GamePiece* board[BOARD_SIZE][BOARD_SIZE], const int* dstP
 		return true;
 	}
 	return false;
+}
+
+bool Chess::checkCode4(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiece* board[BOARD_SIZE][BOARD_SIZE])
+{
+	return madeChess(currPlayer, srcPos, dstPos, board);
 }
 
 bool Chess::checkCode5(const int* dstPos, const int* srcPos) {
@@ -120,17 +131,23 @@ bool Chess::checkCode7(const int* dstPos, const int* srcPos)
 	return false;
 }
 
-int Chess::CheckCode(GamePiece* board[BOARD_SIZE][BOARD_SIZE], const int* srcPos, const int* dstPos) {
+bool Chess::checkCode8(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiece* board[BOARD_SIZE][BOARD_SIZE])
+{
+	return checkMate(currPlayer, board);
+}
+
+int Chess::CheckCode(ChessColors currPlayer,GamePiece* board[BOARD_SIZE][BOARD_SIZE], int* srcPos, int* dstPos) {
 	if (checkCode2(board, srcPos)) {
 		return FrontendCodes::sourceSquareNoCurrPiece;
 	}
-
-	
 	else if (checkCode3(board, dstPos)) 
 	{
 		return FrontendCodes::destSquareHaveCurrPiece; 
 	}
-	
+	else if (checkCode4(currPlayer, srcPos, dstPos, board))
+	{
+		return FrontendCodes::moveCauseChessCurrPlayer;
+	}
 	else if (checkCode5(dstPos, srcPos)) 
 	{
 		return FrontendCodes::illegalIndex; 
@@ -145,7 +162,10 @@ int Chess::CheckCode(GamePiece* board[BOARD_SIZE][BOARD_SIZE], const int* srcPos
 	{
 		return FrontendCodes::sourceDestSquareIdentical;
 	}
-
+	//else if (checkCode8(currPlayer, dstPos, srcPos, board))
+	//{
+	//	return FrontendCodes::checkMate;
+	//}
 	this->_board.movePiece(srcPos[ROW_INDEX], srcPos[COL_INDEX], dstPos[ROW_INDEX], dstPos[COL_INDEX]);
 	return FrontendCodes::vaildMove;
 }
@@ -163,12 +183,79 @@ bool Chess::madeChess(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiec
 {
 	bool isChess = false;
 	int kingPos[SIZE_POS];
-	GamePiece* copiedBoard[BOARD_SIZE][BOARD_SIZE];
-	Board::copyBoard(board, copiedBoard);
+	GamePiece* movingPiece = nullptr;
+	GamePiece* capturedPiece = nullptr;
+
+	std::cout << "Starting madeChess function.\n";
+
+	// Check if there is a piece to move
+	movingPiece = board[srcPos[ROW_INDEX]][srcPos[COL_INDEX]];
+	if (movingPiece == nullptr)
+	{
+		std::cout << "Source position is empty! Returning false.\n";
+		return false; // Invalid move
+	}
+
+	// Deep copy the moving piece
+	GamePiece* copiedPiece = movingPiece->clone();
+	std::cout << "Deep copied the moving piece from (" << srcPos[ROW_INDEX] << ", " << srcPos[COL_INDEX] << ").\n";
+
+	// Simulate the move
+	capturedPiece = board[dstPos[ROW_INDEX]][dstPos[COL_INDEX]];
+	board[dstPos[ROW_INDEX]][dstPos[COL_INDEX]] = movingPiece;
+	board[srcPos[ROW_INDEX]][srcPos[COL_INDEX]] = nullptr;
+
+	movingPiece->setPieceRow(dstPos[ROW_INDEX]);
+	movingPiece->setPieceCol(dstPos[COL_INDEX]);
+
+	std::cout << "Simulated move to (" << dstPos[ROW_INDEX] << ", " << dstPos[COL_INDEX] << ").\n";
+
+	// Get the king's position
+	std::cout << "Getting king's position for current player.\n";
 	getPosKing(currPlayer, kingPos);
+	std::cout << "King's position: (" << kingPos[ROW_INDEX] << ", " << kingPos[COL_INDEX] << ").\n";
 
+	// Check if any opponent piece can attack the king's position
+	for (int i = 0; i < BOARD_SIZE; ++i)
+	{
+		for (int j = 0; j < BOARD_SIZE; ++j)
+		{
+			GamePiece* opponentPiece = board[i][j];
+			if (opponentPiece != nullptr && opponentPiece->getColor() != currPlayer)
+			{
+				std::cout << "Checking opponent piece at (" << i << ", " << j << "). Name: "
+					<< opponentPiece->getName() << ", color: " << opponentPiece->getColor() << "\n";
 
+				if (opponentPiece->canMove(kingPos[ROW_INDEX], kingPos[COL_INDEX], board))
+				{
+					std::cout << "Opponent piece can attack the king!\n";
+					isChess = true;
+					break;
+				}
+			}
+		}
+		if (isChess)
+		{
+			break;
+		}
+	}
+
+	// Undo the move to restore the original board state
+	board[srcPos[ROW_INDEX]][srcPos[COL_INDEX]] = copiedPiece; // Restore the deep copied piece
+	board[dstPos[ROW_INDEX]][dstPos[COL_INDEX]] = capturedPiece; // Restore the captured piece (if any)
+
+	copiedPiece->setPieceRow(srcPos[ROW_INDEX]);
+	copiedPiece->setPieceCol(srcPos[COL_INDEX]);
+
+	std::cout << "Restored the original board state.\n";
+	std::cout << "Returning " << (isChess ? "true" : "false") << ".\n";
+	return isChess;
 }
+
+
+
+
+
 
 void Chess::getPosKing(ChessColors kingColor, int* pos)
 {
@@ -177,13 +264,72 @@ void Chess::getPosKing(ChessColors kingColor, int* pos)
 	{
 		for (int j = 0; j < BOARD_SIZE && !found; j++)
 		{
-			if (this->_board._board[i][j]->getColor() == kingColor && 
-				toupper(this->_board._board[i][j]->getName()) == 'K')
+			if (this->_board._board[i][j] != nullptr)
 			{
-				pos[ROW_INDEX] = i;
-				pos[COL_INDEX] = j;
-				found = true;
+				if (this->_board._board[i][j]->getColor() == kingColor &&
+					toupper(this->_board._board[i][j]->getName()) == 'K')
+				{
+					pos[ROW_INDEX] = i;
+					pos[COL_INDEX] = j;
+					found = true;
+				}
 			}
 		}
 	}
+}
+bool Chess::checkMate(ChessColors currPlayer, GamePiece* board[BOARD_SIZE][BOARD_SIZE])
+{
+	int kingPos[SIZE_POS];
+	getPosKing(currPlayer, kingPos); // Get the current player's king position
+
+	// Check if the king is in check first
+	if (!madeChess(currPlayer, nullptr, nullptr, board)) // Assuming `madeChess` can check for general check
+	{
+		return false; // No check, so no checkmate
+	}
+
+	// Simulate all possible moves for the current player
+	for (int srcRow = 0; srcRow < BOARD_SIZE; ++srcRow)
+	{
+		for (int srcCol = 0; srcCol < BOARD_SIZE; ++srcCol)
+		{
+			GamePiece* piece = board[srcRow][srcCol];
+			if (piece != nullptr && piece->getColor() == currPlayer)
+			{
+				for (int destRow = 0; destRow < BOARD_SIZE; ++destRow)
+				{
+					for (int destCol = 0; destCol < BOARD_SIZE; ++destCol)
+					{
+						if (piece->canMove(destRow, destCol, board))
+						{
+							// Simulate the move
+							GamePiece* capturedPiece = board[destRow][destCol];
+							board[destRow][destCol] = piece;
+							board[srcRow][srcCol] = nullptr;
+
+							piece->setPieceRow(destRow);
+							piece->setPieceCol(destCol);
+
+							// Check if the king is still in check
+							bool stillInCheck = madeChess(currPlayer, nullptr, nullptr, board);
+
+							// Revert the move
+							board[srcRow][srcCol] = piece;
+							board[destRow][destCol] = capturedPiece;
+
+							piece->setPieceRow(srcRow);
+							piece->setPieceCol(srcCol);
+
+							if (!stillInCheck)
+							{
+								return false; // Found a move that resolves the check
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return true; // No valid moves found to resolve the check
 }

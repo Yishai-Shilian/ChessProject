@@ -1,50 +1,38 @@
 #include "GamePiece.h"
+#include "GamePiece.h"
 
-/*
-a constructor for initialization a game piece
-input: name, color, row, col
-output: none
-*/
 GamePiece::GamePiece(const char name, const char color, const int row, const int col) : _name(name), _color(color), _pos{ row, col }
 {
 }
 
-/*
-a destructor for game piece
-input: none
-output: none
-*/
-GamePiece::~GamePiece() {}
-
-/*
-a function that returns game piece's name
-input: none
-output: game piece name
-*/
-char GamePiece::getName() const
+GamePiece::GamePiece(const GamePiece& other) : _name(other._name), _color(other._color) // Copy constructor implementation
 {
-	return this->_name;
+    _pos[ROW_INDEX] = other._pos[ROW_INDEX];
+    _pos[COL_INDEX] = other._pos[COL_INDEX];
 }
 
-/*
-a function that returns game piece's color
-input: none
-output: game piece color
-*/
+GamePiece::~GamePiece() {}
+
+char GamePiece::getName() const
+{
+    return this->_name;
+}
+
 char GamePiece::getColor() const
 {
-	return this->_color;
+    return this->_color;
 }
 
 void GamePiece::setPieceRow(const int newRow)
 {
-	this->_pos[ROW_INDEX] = newRow;
+    this->_pos[ROW_INDEX] = newRow;
 }
 
 void GamePiece::setPieceCol(const int newCol)
 {
-	this->_pos[COL_INDEX] = newCol;
+    this->_pos[COL_INDEX] = newCol;
 }
+
 
 bool GamePiece::IsPathClear(const int newRow, const int newCol, GamePiece* board[BOARD_SIZE][BOARD_SIZE]) {
     // Current position

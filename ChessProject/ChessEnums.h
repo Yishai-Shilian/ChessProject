@@ -38,4 +38,5 @@ enum FrontendCodes
 	illegalIndex,
 	illegalPieceMove,
 	sourceDestSquareIdentical,
+	checkMate,
 };

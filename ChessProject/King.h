@@ -4,10 +4,10 @@
 class King : public GamePiece
 {
 public:
-	King(const char name, const char color, const int row, const int col);
-	~King();
-	virtual bool canMove(const int newRow, const int newCol, GamePiece* board[BOARD_SIZE][BOARD_SIZE])  override;
-
+    King(const char name, const char color, const int row, const int col);
+    King(const King& other); // Copy constructor
+    ~King();
+    virtual bool canMove(const int newRow, const int newCol, GamePiece* board[BOARD_SIZE][BOARD_SIZE]) override;
+    virtual GamePiece* clone() const override;
 private:
 };
-

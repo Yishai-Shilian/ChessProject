@@ -1,16 +1,20 @@
+
 #include "Pawn.h"
 #include <cmath> // For abs()
 #include "ChessEnums.h"
+
 Pawn::Pawn(const char name, const char color, const int row, const int col)
     : GamePiece(name, color, row, col), _isFirstMove(true)
 {
 }
 
+Pawn::Pawn(const Pawn& other) : GamePiece(other), _isFirstMove(other._isFirstMove) {} // Copy constructor implementation
+
 Pawn::~Pawn()
 {
 }
 
-bool Pawn::canMove(const int newRow, const int newCol, GamePiece* board[BOARD_SIZE][BOARD_SIZE]) 
+bool Pawn::canMove(const int newRow, const int newCol, GamePiece* board[BOARD_SIZE][BOARD_SIZE])
 {
     int rowDiff = 0;
     int colDiff = 0;
@@ -24,7 +28,7 @@ bool Pawn::canMove(const int newRow, const int newCol, GamePiece* board[BOARD_SI
         rowDiff = newRow - this->_pos[ROW_INDEX];
         colDiff = newCol - this->_pos[COL_INDEX];
     }
-    
+
     //if first move
     if (this->_isFirstMove == false)
     {
@@ -34,7 +38,7 @@ bool Pawn::canMove(const int newRow, const int newCol, GamePiece* board[BOARD_SI
             return true;
         }
         //eating thing if the row diffrance is 1 and only when there is sombody there and the color is diffrant
-        if (abs(rowDiff) == 1 && abs(colDiff) == 1 && board[newRow][newCol] != nullptr && board[newRow][newCol]->getColor() != this->getColor())
+        if (rowDiff == 1 && abs(colDiff) == 1 && board[newRow][newCol] != nullptr && board[newRow][newCol]->getColor() != this->getColor())
         {
             return true;
         }
@@ -51,7 +55,7 @@ bool Pawn::canMove(const int newRow, const int newCol, GamePiece* board[BOARD_SI
             this->_isFirstMove = false;
             return true;
         }
-        if (abs(rowDiff) == 1 && abs(colDiff) == 1 && board[newRow][newCol] != nullptr && board[newRow][newCol]->getColor() != this->getColor())
+        if (rowDiff == 1 && abs(colDiff) == 1 && board[newRow][newCol] != nullptr && board[newRow][newCol]->getColor() != this->getColor())
         {
             this->_isFirstMove = false;
             return true;
@@ -68,3 +72,8 @@ int Pawn::getDir() const
     }
     return -1;
 }
+GamePiece* Pawn::clone() const
+{
+    return new Pawn(*this); // Create and return a copy of the current Pawn object
+}
+
