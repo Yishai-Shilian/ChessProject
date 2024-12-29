@@ -99,17 +99,23 @@ void Board::printBoard() const {
     }
 }
 
-void Board::eat(const int row,const int col)
+// Function to eat the piece
+// Input: row, col
+// Output: none
+void Board::eat(const int row, const int col)
 {
     delete this->_board[row][col];
 }
 
 void Board::getPosFromString(const std::string posString, int* pos)
 {
-    pos[ROW_INDEX] = abs(posString[ROW_INDEX_STRING] - '8');
-    pos[COL_INDEX] = abs(posString[COL_INDEX_STRING] - 'a');
+    pos[ROW_INDEX] = abs(posString[ROW_INDEX_STRING] - ROW_CONVERTOR);
+    pos[COL_INDEX] = abs(posString[COL_INDEX_STRING] - COL_CONVERTOR);
 }
 
+// Function to move the piece
+// Input: src row, col and dst row, col
+// Output: moved game piece
 void Board::movePiece(const int sourceRow, const int sourceCol, const int destRow, const int destCol)
 {
     GamePiece* temp = nullptr;
@@ -124,8 +130,9 @@ void Board::movePiece(const int sourceRow, const int sourceCol, const int destRo
     this->_board[destRow][destCol] = temp;
 }
 
-
-
+// Function to get the game piece by the row and col
+// Input: row and col
+// Output: the game piece in that row and col
 GamePiece* Board::getGamePiece(const int row, const int col) const
 {
     return this->_board[row][col];

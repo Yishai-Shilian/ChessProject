@@ -11,6 +11,8 @@
 #define PLACEMENT_STRING_SIZE 66
 #define COL_INDEX_STRING 0
 #define ROW_INDEX_STRING 1
+#define COL_CONVERTOR 'a'
+#define ROW_CONVERTOR '8'
 
 class Board
 {
@@ -25,3 +27,4 @@ public:
 	GamePiece* _board[BOARD_SIZE][BOARD_SIZE];
 private:
 };
+

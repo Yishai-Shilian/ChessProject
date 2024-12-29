@@ -1,6 +1,8 @@
 #pragma once
 #include "GamePiece.h"
 
+#define DOUBLE_STEP_FIRST_MOVE 2
+
 class Pawn : public GamePiece
 {
 public:

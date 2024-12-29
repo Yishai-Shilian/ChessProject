@@ -28,5 +28,5 @@ bool Rook::canMove(const int newRow, const int newCol, GamePiece* board[BOARD_SI
 // Clone method implementation
 GamePiece* Rook::clone() const
 {
-    return new Rook(*this); // Create and return a copy of the current Rook object
+    return new Rook(*this);
 }
