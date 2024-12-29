@@ -9,11 +9,11 @@ class GamePiece
 {
 public:
     GamePiece(const char name, const char color, const int row, const int col);
-    GamePiece(const GamePiece& other); // Copy constructor
+    GamePiece(const GamePiece& other);
     virtual ~GamePiece();
 
     virtual bool canMove(const int newRow, const int newCol, GamePiece* board[BOARD_SIZE][BOARD_SIZE]) = 0;
-    virtual GamePiece* clone() const = 0; // Pure virtual clone method
+    virtual GamePiece* clone() const = 0;
 
     char getName() const;
     char getColor() const;

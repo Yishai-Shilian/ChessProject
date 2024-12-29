@@ -47,7 +47,7 @@ void Chess::play()
 		msgToGraphics[1] = 0;
 		this->_pipe.sendMessageToGraphics(msgToGraphics);
 		this->_board.printBoard();
-		if (frontendCode == FrontendCodes::vaildMove)
+		if (frontendCode == FrontendCodes::vaildMove || frontendCode == FrontendCodes::validMoveCausesChessRival)
 		{
 			this->switchTurns();
 		}
@@ -70,10 +70,7 @@ void Chess::switchTurns()
 }
 bool Chess::checkCode1(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiece* board[BOARD_SIZE][BOARD_SIZE])
 {
-	if (madeChess(getOpponentColor(), srcPos, dstPos, board))
-	{
-		return FrontendCodes::validMoveCausesChessRival;
-	}
+	return madeChess(getOpponentColor(), srcPos, dstPos, board);
 }
 bool Chess::checkCode2(GamePiece* board[BOARD_SIZE][BOARD_SIZE],const int* srcPos)
 {
@@ -131,11 +128,6 @@ bool Chess::checkCode7(const int* dstPos, const int* srcPos)
 	return false;
 }
 
-bool Chess::checkCode8(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiece* board[BOARD_SIZE][BOARD_SIZE])
-{
-	return checkMate(currPlayer, board);
-}
-
 int Chess::CheckCode(ChessColors currPlayer,GamePiece* board[BOARD_SIZE][BOARD_SIZE], int* srcPos, int* dstPos) {
 	if (checkCode2(board, srcPos)) {
 		return FrontendCodes::sourceSquareNoCurrPiece;
@@ -162,10 +154,11 @@ int Chess::CheckCode(ChessColors currPlayer,GamePiece* board[BOARD_SIZE][BOARD_S
 	{
 		return FrontendCodes::sourceDestSquareIdentical;
 	}
-	//else if (checkCode8(currPlayer, dstPos, srcPos, board))
-	//{
-	//	return FrontendCodes::checkMate;
-	//}
+	else if (checkCode1(this->_currPlayer,srcPos, dstPos, this->_board._board))
+	{
+		this->_board.movePiece(srcPos[ROW_INDEX], srcPos[COL_INDEX], dstPos[ROW_INDEX], dstPos[COL_INDEX]);
+		return FrontendCodes::validMoveCausesChessRival;
+	}
 	this->_board.movePiece(srcPos[ROW_INDEX], srcPos[COL_INDEX], dstPos[ROW_INDEX], dstPos[COL_INDEX]);
 	return FrontendCodes::vaildMove;
 }
@@ -186,21 +179,14 @@ bool Chess::madeChess(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiec
 	GamePiece* movingPiece = nullptr;
 	GamePiece* capturedPiece = nullptr;
 
-	std::cout << "Starting madeChess function.\n";
-
-	// Check if there is a piece to move
 	movingPiece = board[srcPos[ROW_INDEX]][srcPos[COL_INDEX]];
 	if (movingPiece == nullptr)
 	{
-		std::cout << "Source position is empty! Returning false.\n";
-		return false; // Invalid move
+		return false;
 	}
 
-	// Deep copy the moving piece
 	GamePiece* copiedPiece = movingPiece->clone();
-	std::cout << "Deep copied the moving piece from (" << srcPos[ROW_INDEX] << ", " << srcPos[COL_INDEX] << ").\n";
 
-	// Simulate the move
 	capturedPiece = board[dstPos[ROW_INDEX]][dstPos[COL_INDEX]];
 	board[dstPos[ROW_INDEX]][dstPos[COL_INDEX]] = movingPiece;
 	board[srcPos[ROW_INDEX]][srcPos[COL_INDEX]] = nullptr;
@@ -208,14 +194,8 @@ bool Chess::madeChess(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiec
 	movingPiece->setPieceRow(dstPos[ROW_INDEX]);
 	movingPiece->setPieceCol(dstPos[COL_INDEX]);
 
-	std::cout << "Simulated move to (" << dstPos[ROW_INDEX] << ", " << dstPos[COL_INDEX] << ").\n";
-
-	// Get the king's position
-	std::cout << "Getting king's position for current player.\n";
 	getPosKing(currPlayer, kingPos);
-	std::cout << "King's position: (" << kingPos[ROW_INDEX] << ", " << kingPos[COL_INDEX] << ").\n";
 
-	// Check if any opponent piece can attack the king's position
 	for (int i = 0; i < BOARD_SIZE; ++i)
 	{
 		for (int j = 0; j < BOARD_SIZE; ++j)
@@ -223,12 +203,9 @@ bool Chess::madeChess(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiec
 			GamePiece* opponentPiece = board[i][j];
 			if (opponentPiece != nullptr && opponentPiece->getColor() != currPlayer)
 			{
-				std::cout << "Checking opponent piece at (" << i << ", " << j << "). Name: "
-					<< opponentPiece->getName() << ", color: " << opponentPiece->getColor() << "\n";
 
 				if (opponentPiece->canMove(kingPos[ROW_INDEX], kingPos[COL_INDEX], board))
 				{
-					std::cout << "Opponent piece can attack the king!\n";
 					isChess = true;
 					break;
 				}
@@ -240,21 +217,16 @@ bool Chess::madeChess(ChessColors currPlayer, int* srcPos, int* dstPos, GamePiec
 		}
 	}
 
-	// Undo the move to restore the original board state
-	board[srcPos[ROW_INDEX]][srcPos[COL_INDEX]] = copiedPiece; // Restore the deep copied piece
-	board[dstPos[ROW_INDEX]][dstPos[COL_INDEX]] = capturedPiece; // Restore the captured piece (if any)
+	delete movingPiece;
+
+	board[srcPos[ROW_INDEX]][srcPos[COL_INDEX]] = copiedPiece;
+	board[dstPos[ROW_INDEX]][dstPos[COL_INDEX]] = capturedPiece;
 
 	copiedPiece->setPieceRow(srcPos[ROW_INDEX]);
 	copiedPiece->setPieceCol(srcPos[COL_INDEX]);
 
-	std::cout << "Restored the original board state.\n";
-	std::cout << "Returning " << (isChess ? "true" : "false") << ".\n";
 	return isChess;
 }
-
-
-
-
 
 
 void Chess::getPosKing(ChessColors kingColor, int* pos)
@@ -276,60 +248,4 @@ void Chess::getPosKing(ChessColors kingColor, int* pos)
 			}
 		}
 	}
-}
-bool Chess::checkMate(ChessColors currPlayer, GamePiece* board[BOARD_SIZE][BOARD_SIZE])
-{
-	int kingPos[SIZE_POS];
-	getPosKing(currPlayer, kingPos); // Get the current player's king position
-
-	// Check if the king is in check first
-	if (!madeChess(currPlayer, nullptr, nullptr, board)) // Assuming `madeChess` can check for general check
-	{
-		return false; // No check, so no checkmate
-	}
-
-	// Simulate all possible moves for the current player
-	for (int srcRow = 0; srcRow < BOARD_SIZE; ++srcRow)
-	{
-		for (int srcCol = 0; srcCol < BOARD_SIZE; ++srcCol)
-		{
-			GamePiece* piece = board[srcRow][srcCol];
-			if (piece != nullptr && piece->getColor() == currPlayer)
-			{
-				for (int destRow = 0; destRow < BOARD_SIZE; ++destRow)
-				{
-					for (int destCol = 0; destCol < BOARD_SIZE; ++destCol)
-					{
-						if (piece->canMove(destRow, destCol, board))
-						{
-							// Simulate the move
-							GamePiece* capturedPiece = board[destRow][destCol];
-							board[destRow][destCol] = piece;
-							board[srcRow][srcCol] = nullptr;
-
-							piece->setPieceRow(destRow);
-							piece->setPieceCol(destCol);
-
-							// Check if the king is still in check
-							bool stillInCheck = madeChess(currPlayer, nullptr, nullptr, board);
-
-							// Revert the move
-							board[srcRow][srcCol] = piece;
-							board[destRow][destCol] = capturedPiece;
-
-							piece->setPieceRow(srcRow);
-							piece->setPieceCol(srcCol);
-
-							if (!stillInCheck)
-							{
-								return false; // Found a move that resolves the check
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return true; // No valid moves found to resolve the check
 }
